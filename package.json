@@ -1,0 +1,33 @@
+{
+  "name": "pawsnest-server",
+  "version": "1.0.0",
+  "description": "Backend API for PawsNest Pet Adoption Platform",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon index.js",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "mern",
+    "nextjs",
+    "express",
+    "mongodb",
+    "pet-adoption"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "latest",
+    "cookie-parser": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "google-auth-library": "latest",
+    "jsonwebtoken": "latest",
+    "mongodb": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest"
+  }
+}
