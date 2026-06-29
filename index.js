@@ -6,7 +6,10 @@ import { connectDB } from "./src/config/db.js";
 import authRoutes from "./src/routes/auth.routes.js";
 import petRoutes from "./src/routes/pet.routes.js";
 import requestRoutes from "./src/routes/request.routes.js";
-import { errorHandler, notFoundHandler } from "./src/middlewares/errorHandler.js";
+import {
+  errorHandler,
+  notFoundHandler,
+} from "./src/middlewares/errorHandler.js";
 
 dotenv.config();
 
@@ -21,25 +24,50 @@ const allowedOrigins = [
   process.env.CLIENT_URL_2,
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error(`CORS blocked for origin: ${origin}`));
-      }
-    },
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS blocked for origin: ${origin}`));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-app.options("*", cors());
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
 app.use(express.json());
 app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.json({ success: true, message: "PawsNest server is running" });
+  res.json({
+    success: true,
+    message: "PawsNest server is running",
+  });
+});
+
+app.get("/favicon.ico", (req, res) => {
+  res.status(204).end();
+});
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.use("/api/auth", authRoutes);
@@ -49,24 +77,17 @@ app.use("/api/requests", requestRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-async function startServer() {
-  try {
-    await connectDB();
-
-    if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== "production") {
+  connectDB()
+    .then(() => {
       app.listen(port, () => {
         console.log(`PawsNest server running on port ${port}`);
       });
-    }
-  } catch (error) {
-    console.error("Failed to start server:", error.message);
-
-    if (process.env.NODE_ENV !== "production") {
+    })
+    .catch((error) => {
+      console.error("Failed to start server:", error.message);
       process.exit(1);
-    }
-  }
+    });
 }
-
-startServer();
 
 export default app;
