@@ -61,15 +61,6 @@ app.get("/favicon.ico", (req, res) => {
   res.status(204).end();
 });
 
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
 app.use("/api/auth", authRoutes);
 app.use("/api/pets", petRoutes);
 app.use("/api/requests", requestRoutes);
@@ -77,17 +68,19 @@ app.use("/api/requests", requestRoutes);
 app.use(notFoundHandler);
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== "production") {
-  connectDB()
-    .then(() => {
-      app.listen(port, () => {
-        console.log(`PawsNest server running on port ${port}`);
-      });
-    })
-    .catch((error) => {
-      console.error("Failed to start server:", error.message);
-      process.exit(1);
+async function startServer() {
+  try {
+    await connectDB();
+
+    app.listen(port, () => {
+      console.log(`PawsNest server running on port ${port}`);
     });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
 }
+
+startServer();
 
 export default app;
