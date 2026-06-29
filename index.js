@@ -53,7 +53,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "PawsNest server is running",
+    message: "PawsNest server is running - CORS FIX VERSION 3",
   });
 });
 
