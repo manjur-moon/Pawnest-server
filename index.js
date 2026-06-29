@@ -1,5 +1,4 @@
 import express from "express";
-import cors from "cors";
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import { connectDB } from "./src/config/db.js";
@@ -18,30 +17,30 @@ const port = process.env.PORT || 5000;
 
 app.set("trust proxy", 1);
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  process.env.CLIENT_URL,
-  process.env.CLIENT_URL_2,
-].filter(Boolean);
-
-const corsOptions = {
-  origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`CORS blocked for origin: ${origin}`));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-};
-
-app.use(cors(corsOptions));
-
+/**
+ * Final manual CORS middleware
+ * Important: This must stay before express.json() and before all routes.
+ */
 app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Vary", "Origin");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET,POST,PATCH,DELETE,OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+
   if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
+    return res.status(204).end();
   }
 
   next();
@@ -53,7 +52,17 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.json({
     success: true,
-    message: "PawsNest server is running - CORS FIX VERSION 3",
+    message: "PawsNest server is running - CORS FINAL VERSION",
+  });
+});
+
+app.get("/api/debug/cors", (req, res) => {
+  res.json({
+    success: true,
+    version: "cors-final-version",
+    origin: req.headers.origin || null,
+    clientUrl: process.env.CLIENT_URL || null,
+    clientUrl2: process.env.CLIENT_URL_2 || null,
   });
 });
 
