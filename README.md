@@ -7,7 +7,7 @@ PawsNest Server – Pet Adoption Platform API
 This Express.js server powers the PawsNest Pet Adoption Platform. It manages authentication, pet listings, adoption requests, owner-only actions, requester-only actions, and secure MongoDB operations.
 
 ## Live API URL
-Server Live URL: [`https://your-server-render-url.onrender.com`](https://pawnest-server.onrender.com)
+Server Live URL: https://pawnest-server.onrender.com
 
 ## Features
 - Express.js REST API.
