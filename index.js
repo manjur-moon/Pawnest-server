@@ -33,10 +33,18 @@ app.use(errorHandler);
 async function startServer() {
   try {
     await connectDB();
-    app.listen(port, () => console.log(`PawsNest server running on port ${port}`));
+
+    if (process.env.NODE_ENV !== "production") {
+      app.listen(port, () => {
+        console.log(`PawsNest server running on port ${port}`);
+      });
+    }
   } catch (error) {
     console.error("Failed to start server:", error.message);
-    process.exit(1);
+
+    if (process.env.NODE_ENV !== "production") {
+      process.exit(1);
+    }
   }
 }
 
